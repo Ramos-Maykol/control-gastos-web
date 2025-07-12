@@ -1,0 +1,36 @@
+.stat-card {
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #fff;
+}
+
+.stat-card.income {
+  background-color: #00c897;
+}
+
+.stat-card.expense {
+  background-color: #ff6b6b;
+}
+
+.stat-card.balance {
+  background-color: #4a69bd;
+}
+
+.stat-card.savings {
+  background-color: #ffa502;
+}
+
+.stat-title {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+}

@@ -1,0 +1,35 @@
+.transactions-table {
+  margin-top: 2rem;
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.transactions-table h2 {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+}
+
+.transaction-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.transaction-row:last-child {
+  border-bottom: none;
+}
+
+.transaction-icon {
+  margin-right: 0.5rem;
+}
+
+.transaction-description {
+  font-weight: 500;
+}
+
+.transaction-amount {
+  font-weight: bold;
+}
