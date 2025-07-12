@@ -4,11 +4,11 @@ import { autenticar } from '../middleware/authMiddleware.js';
 
 const router = Router();
 
-// Autenticación pública
+// Rutas públicas
 router.post('/login', login);
 router.post('/registrar', registrar);
 
-// Perfil protegido
+// Ruta protegida
 router.get('/perfil', autenticar, obtenerPerfil);
 
 export default router;

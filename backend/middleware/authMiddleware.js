@@ -21,11 +21,5 @@ const autenticar = async (req, res, next) => {
     }
 };
 
-const soloEstudiantes = (req, res, next) => {
-    if (req.usuario && req.usuario.rol === 'estudiante') return next();
-    const error = new Error('Acceso restringido a estudiantes');
-    error.statusCode = 403;
-    next(error);
-};
 
-export { autenticar, soloEstudiantes };
+export { autenticar };

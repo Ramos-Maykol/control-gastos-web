@@ -16,7 +16,7 @@ import alertaRoutes from './routes/alertaRoutes.js';
 import healthRoutes from './routes/healthRoutes.js';
 import swaggerRoutes from './routes/swaggerRoutes.js';
 
-import db from './config/db.js';
+import db from './models/index.js';
 import { logger, registroAccesos } from './middleware/loggerMiddleware.js';
 import manejoErrores from './middleware/errorMiddleware.js';
 import { limiteGastosDiarios } from './middleware/limitesMiddleware.js';
@@ -45,14 +45,15 @@ app.use(helmet({
 }));
 
 // CORS
+// CORS (Desarrollo - permite frontend local)
 app.use(cors({
-  origin: process.env.CLIENT_URLS?.split(',') || ['http://localhost:3000'],
+  origin: ['http://localhost:5173'], // 👈 Aquí el frontend Vite
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Correlation-ID'],
   exposedHeaders: ['X-RateLimit-Limit', 'X-RateLimit-Remaining'],
-  credentials: true,
-  maxAge: 86400
+  credentials: true
 }));
+
 
 // Middleware de tracking
 app.use((req, res, next) => {
@@ -91,8 +92,8 @@ const authLimiter = rateLimit({
 const MAX_RETRIES = 3;
 const connectWithRetry = async (retries = MAX_RETRIES) => {
   try {
-    await db.authenticate(); // ⬅️ Método correcto para probar la conexión
-    await db.sync({ alter: true });
+    await db.sequelize.authenticate(); // ← 👈 CAMBIO AQUÍ
+    await db.sequelize.sync({ alter: true }); // ← 👈 CAMBIO AQUÍ
     logger.info('✅ Base de datos sincronizada');
   } catch (err) {
     if (retries > 0) {
@@ -106,7 +107,40 @@ const connectWithRetry = async (retries = MAX_RETRIES) => {
 };
 
 
+
+import { generarSalt, hashearPassword } from './utils/hashUtils.js';
+
+const crearUsuarioPorDefecto = async () => {
+  console.log('🔍 Ejecutando creación de usuario por defecto...');
+  const { Usuario } = db;
+  const email = 'admin@demo.com';
+
+  const existe = await Usuario.findOne({ where: { email } });
+  if (!existe) {
+    const salt = generarSalt();
+    const hash = hashearPassword('123456', salt);
+    await Usuario.create({
+      nombre: 'Administrador',
+      email,
+      password: hash,
+      salt,
+      edad: 22
+    });
+    console.log('✅ Usuario por defecto creado (admin@demo.com / 123456)');
+  } else {
+    console.log('ℹ️ Usuario por defecto ya existe');
+  }
+};
+
+
 await connectWithRetry();
+
+db.sequelize.sync({ alter: true }).then(async () => {
+  await crearUsuarioPorDefecto();
+});
+
+
+
 
 // Rutas
 const routes = [
