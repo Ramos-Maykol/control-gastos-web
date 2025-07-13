@@ -6,7 +6,13 @@ export const crearMovimiento = async (req, res, next) => {
         const { tipo, monto, categoria_id, fecha, descripcion } = req.body;
         
         const categoria = await Categoria.findOne({
-            where: { id: categoria_id, usuario_id: req.usuario.id }
+        where: {
+            id: categoria_id,
+            [Op.or]: [
+            { usuario_id: req.usuario.id },
+            { es_global: true }
+            ]
+        }
         });
         
         if (!categoria) {
@@ -39,9 +45,11 @@ export const obtenerMovimientos = async (req, res, next) => {
         const movimientos = await Movimiento.findAll({
             where,
             include: [{
-                model: Categoria,
-                attributes: ['nombre', 'tipo']
+            model: Categoria,
+            as: 'categoria', // 👈 Usa el alias exacto que definiste en la asociación
+            attributes: ['nombre', 'tipo']
             }],
+
             order: [['fecha', 'DESC']]
         });
 

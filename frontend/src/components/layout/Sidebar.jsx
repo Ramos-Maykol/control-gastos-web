@@ -1,8 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import './Sidebar.css';
 
 const Sidebar = () => {
+    const [showSubmenu, setShowSubmenu] = useState(false);
+
+    const toggleSubmenu = () => {
+        setShowSubmenu(!showSubmenu);
+    };
+
     return (
         <aside className="sidebar">
             <nav className="sidebar__nav">
@@ -21,9 +27,18 @@ const Sidebar = () => {
                 <NavLink to="/educacion" className="sidebar__item">
                     📚 <span>Educación Financiera</span>
                 </NavLink>
-                <NavLink to="/configuracion" className="sidebar__item">
+
+                {/* Configuración con submenú */}
+                <div className="sidebar__item sidebar__submenu-toggle" onClick={toggleSubmenu}>
                     ⚙️ <span>Configuración</span>
-                </NavLink>
+                </div>
+                {showSubmenu && (
+                    <div className="sidebar__submenu">
+                        <NavLink to="/configuracion/categoria" className="sidebar__subitem">
+                            🗂️ <span>Categoría</span>
+                        </NavLink>
+                    </div>
+                )}
             </nav>
         </aside>
     );

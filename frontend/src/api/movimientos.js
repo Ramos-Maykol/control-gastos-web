@@ -1,58 +1,26 @@
-import axios from 'axios';
+// src/api/movimientos.js
+import API from './axiosInstance';
 
-// ✅ Instancia base
-const API = axios.create({
-  baseURL: 'http://localhost:3006/api/v1',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
-// ✅ Interceptor para incluir token en cada solicitud
-API.interceptors.request.use(config => {
-  const token = localStorage.getItem('token');
-
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-
-  return config;
-}, error => {
-  return Promise.reject(error);
-});
-
-// ✅ Interceptor de respuesta para manejar errores globales
-API.interceptors.response.use(
-  response => response,
-  error => {
-    if (error.response && error.response.status === 401) {
-      // Si el token es inválido o ha expirado, redirigir al login
-      localStorage.removeItem('token');
-      localStorage.removeItem('usuario');
-      window.location.href = '/login';
-    }
-    return Promise.reject(error);
-  }
-);
-
-// ✅ Obtener movimientos
+// Obtener todos los movimientos
 export const getMovimientos = async () => {
-  try {
-    const response = await API.get('/movimientos');
-    return response.data;
-  } catch (error) {
-    throw new Error('Error al obtener movimientos');
-  }
+  const res = await API.get('/movimientos');
+  return res.data; // ✅ Retorna solo los datos
 };
 
-// ✅ Agregar movimiento
-export const addMovimiento = async (movimiento) => {
-  try {
-    const response = await API.post('/movimientos', movimiento);
-    return response.data;
-  } catch (error) {
-    throw new Error('Error al agregar movimiento');
-  }
+// Crear un nuevo movimiento
+export const crearMovimiento = async (movimiento) => {
+  const res = await API.post('/movimientos', movimiento);
+  return res.data;
 };
 
-export default API;
+// Actualizar un movimiento por ID
+export const actualizarMovimiento = async (id, data) => {
+  const res = await API.put(`/movimientos/${id}`, data);
+  return res.data;
+};
+
+// Eliminar un movimiento por ID
+export const eliminarMovimiento = async (id) => {
+  const res = await API.delete(`/movimientos/${id}`);
+  return res.data;
+};

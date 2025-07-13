@@ -1,27 +1,31 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import StatsCard from "../../components/dashboard/StatsCard";
 import RecentTransactions from "../../components/dashboard/RecentTransactions";
 import { getMovimientos } from "../../api/movimientos";
+import './Dashboard.css';
 
 const Dashboard = () => {
   const [transactions, setTransactions] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const cargarDatos = async () => {
       try {
-        const data = await getMovimientos();
-        // Mapea los datos para que sean compatibles con tu componente
+        const response = await getMovimientos();
+        const data = response.data || response;  // maneja ambos casos
         const formateados = data.map(mov => ({
           fecha: new Date(mov.fecha).toLocaleDateString('es-PE', {
-            day: '2-digit', month: 'short'
+            day: '2-digit',
+            month: 'short'
           }),
           descripcion: mov.descripcion,
-          categoria: mov.Categoria?.nombre || "Sin categoría",
+          categoria: mov.categoria?.nombre || "Sin categoría", // ← corregido
           tipo: mov.tipo,
-          monto: mov.monto,
-          colorFondo: mov.tipo === "income" ? "#d4f8e8" : "#ffe4e6",
-          colorTexto: mov.tipo === "income" ? "#00a86b" : "#ff4757",
-          icono: mov.tipo === "income" ? "💵" : "💸"
+          monto: Number(mov.monto), // ← aseguramos que es número
+          colorFondo: mov.tipo === "ingreso" ? "#d4f8e8" : "#ffe4e6",
+          colorTexto: mov.tipo === "ingreso" ? "#00a86b" : "#ff4757",
+          icono: mov.tipo === "ingreso" ? "💵" : "💸"
         }));
         setTransactions(formateados);
       } catch (error) {
@@ -32,12 +36,13 @@ const Dashboard = () => {
     cargarDatos();
   }, []);
 
+  // Totales
   const ingresos = transactions
-    .filter(t => t.tipo === "income")
+    .filter(t => t.tipo === "ingreso")
     .reduce((acc, t) => acc + t.monto, 0);
 
   const gastos = transactions
-    .filter(t => t.tipo === "expense")
+    .filter(t => t.tipo === "egreso")
     .reduce((acc, t) => acc + t.monto, 0);
 
   const balance = ingresos - gastos;
@@ -45,28 +50,36 @@ const Dashboard = () => {
 
   return (
     <main className="main-content">
-      <div className="welcome-section">
-        <h1>Dashboard Financiero</h1>
-        <p>Aquí está tu resumen financiero actual</p>
-      </div>
+      <div className="dashboard-container">
+        <div className="welcome-section">
+          <h1>Dashboard Financiero</h1>
+          <p>Resumen financiero actualizado</p>
+        </div>
 
-      <div className="quick-actions">
-        <button className="action-btn btn-primary">
-          <span>➕</span> Nuevo Ingreso
-        </button>
-        <button className="action-btn btn-secondary">
-          <span>➖</span> Nuevo Gasto
-        </button>
-      </div>
+        <div className="quick-actions">
+          <button
+            className="action-btn btn-primary"
+            onClick={() => navigate('/movimientos/nuevo?tipo=ingreso')}
+          >
+            <span>➕</span> Nuevo Ingreso
+          </button>
+          <button
+            className="action-btn btn-secondary"
+            onClick={() => navigate('/movimientos/nuevo?tipo=egreso')}
+          >
+            <span>➖</span> Nuevo Gasto
+          </button>
+        </div>
 
-      <div className="stats-grid">
-        <StatsCard title="Ingresos del Mes" value={`S/. ${ingresos}`} icon="📈" type="income" />
-        <StatsCard title="Gastos del Mes" value={`S/. ${gastos}`} icon="📉" type="expense" />
-        <StatsCard title="Balance" value={`S/. ${balance}`} icon="💰" type="balance" />
-        <StatsCard title="Tasa de Ahorro" value={`${ahorro}%`} icon="🎯" type="savings" />
-      </div>
+        <div className="stats-grid">
+          <StatsCard title="Ingresos del Mes" value={`S/. ${ingresos.toFixed(2)}`} icon="📈" type="income" />
+          <StatsCard title="Gastos del Mes" value={`S/. ${gastos.toFixed(2)}`} icon="📉" type="expense" />
+          <StatsCard title="Balance" value={`S/. ${balance.toFixed(2)}`} icon="💰" type="balance" />
+          <StatsCard title="Tasa de Ahorro" value={`${ahorro}%`} icon="🎯" type="savings" />
+        </div>
 
-      <RecentTransactions transactions={transactions} />
+        <RecentTransactions transactions={transactions} />
+      </div>
     </main>
   );
 };

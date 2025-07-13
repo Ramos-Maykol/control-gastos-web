@@ -10,11 +10,13 @@ html, body, #root {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  margin: auto;         /* ✅ Quita margen */
+  padding: 0;        /* ✅ Quita padding */
 }
 
 .body-container {
   display: flex;
-  flex: 1; /* Ocupa el resto del espacio debajo del header */
+  flex: 1;
   overflow: hidden;
 }
 
@@ -27,7 +29,8 @@ html, body, #root {
 
 .page-content {
   flex: 1;
-  padding: 2rem;
+  padding: 0;        /* ✅ Quita el padding interno */
+  margin: 0;         /* ✅ Elimina cualquier margen por si acaso */
   overflow-y: auto;
   background-color: #f5f7fa;
 }

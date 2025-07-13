@@ -59,3 +59,26 @@ export const actualizarCategoria = async (req, res, next) => {
         next(error);
     }
 };
+
+export const eliminarCategoria = async (req, res, next) => {
+    try {
+        const categoria = await Categoria.findOne({
+            where: {
+                id: req.params.id,
+                [Op.or]: [
+                    { es_global: true },
+                    { usuario_id: req.usuario.id }
+                ]
+            }
+        });
+
+        if (!categoria) {
+            return res.status(404).json({ error: 'Categoría no encontrada' });
+        }
+
+        await categoria.destroy();
+        res.status(204).send();
+    } catch (error) {
+        next(error);
+    }
+};

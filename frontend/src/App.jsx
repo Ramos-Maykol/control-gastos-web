@@ -4,6 +4,10 @@ import Sidebar from './components/layout/Sidebar';
 import Dashboard from './pages/Dashboard/Dashboard';
 import Login from './pages/Auth/Login';
 import PrivateRoute from './components/routing/PrivateRoute';
+import CreateMovimiento from './pages/Movimientos/CreateMovimiento';
+import CategoriaPage from './pages/Configuracion/CategoriaPage';
+
+
 import './App.css';
 
 function App() {
@@ -27,6 +31,28 @@ function App() {
             </PrivateRoute>
           }
         />
+        <Route
+          path="/movimientos/nuevo"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <CreateMovimiento />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/configuracion/categoria"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <CategoriaPage />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+
 
         {/* Página 404 */}
         <Route path="*" element={<p>Página no encontrada</p>} />

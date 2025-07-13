@@ -1,18 +1,20 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
-  // Redirigir si ya hay sesión activa
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (token) {
-      window.location.href = '/dashboard';
+    const usuario = localStorage.getItem('usuario');
+    if (token && usuario) {
+      navigate('/dashboard'); // ✅ sin recargar la app
     }
-  }, []);
+  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,8 +31,7 @@ const Login = () => {
       localStorage.setItem('token', token);
       localStorage.setItem('usuario', JSON.stringify(usuario));
 
-      window.location.href = '/dashboard';
-
+      navigate('/dashboard'); // ✅ Redirección sin recarga
     } catch (err) {
       const errorMsg = err.response?.data?.error?.message || err.response?.data?.error || 'Error al iniciar sesión';
       setError(errorMsg);

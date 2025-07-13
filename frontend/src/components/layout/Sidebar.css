@@ -55,3 +55,25 @@
   background-color: #1d4ed8;
   border-radius: 0 4px 4px 0;
 }
+
+.sidebar__submenu {
+  margin-left: 1.5rem;
+  margin-top: 0.3rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar__subitem {
+  padding: 0.5rem 0.5rem;
+  font-size: 0.95rem;
+  color: #333;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.sidebar__subitem:hover,
+.sidebar__subitem.active {
+  background-color: #e5e7eb;
+  border-radius: 6px;
+  font-weight: bold;
+}
