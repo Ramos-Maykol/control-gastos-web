@@ -5,11 +5,13 @@ import Header from './components/layout/Header';
 import Sidebar from './components/layout/Sidebar';
 import Dashboard from './pages/Dashboard/Dashboard';
 import Login from './pages/Auth/Login';
+import Register from './pages/Auth/Register';
 import PrivateRoute from './components/routing/PrivateRoute';
 import CreateMovimiento from './pages/Movimientos/CreateMovimiento';
 import CategoriaPage from './pages/Configuracion/CategoriaPage';
 import ReportsPage from './pages/Reports/ReportsPage';
-import MetasAhorroPage from './pages/MetasAhorro/MetasAhorroPage'; // ¡Importa la nueva página!
+import MetasAhorroPage from './pages/MetasAhorro/MetasAhorroPage';
+import EducacionFinancieraPage from './pages/EducacionFinanciera/EducacionFinancieraPage'; // ¡Importa el nuevo componente!
 import './App.css';
 
 // El Layout ahora es un componente interno de App para simplificar
@@ -79,6 +81,7 @@ function App() {
         <Router>
             <Routes>
                 <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
                 <Route element={<PrivateRoute />}>
                     <Route element={<AppLayout />}>
                         <Route index element={<Navigate to="/dashboard" replace />} />
@@ -87,8 +90,8 @@ function App() {
                         <Route path="/configuracion/categoria" element={<CategoriaPage />} />
                         <Route path="/transacciones" element={<CreateMovimiento />} />
                         <Route path="/reportes" element={<ReportsPage />} />
-                        <Route path="/metas-ahorro" element={<MetasAhorroPage />} /> {/* ¡Nueva ruta para Metas de Ahorro! */}
-                        <Route path="/educacion-financiera" element={<div>Educación Financiera</div>} />
+                        <Route path="/metas-ahorro" element={<MetasAhorroPage />} />
+                        <Route path="/educacion-financiera" element={<EducacionFinancieraPage />} /> {/* ¡Componente EducacionFinancieraPage integrado! */}
                     </Route>
                 </Route>
                 <Route path="*" element={<Navigate to="/dashboard" replace />} />

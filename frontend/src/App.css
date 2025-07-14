@@ -70,3 +70,79 @@
     opacity: 1;
   }
 }
+/* Add these to your global CSS file (e.g., src/index.css) */
+
+/* Keyframes for subtle gradient shift animation */
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gradient-shift {
+  background-size: 200% 200%;
+  animation: gradient-shift 10s ease infinite;
+}
+
+/* Keyframes for fade-in animation */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out forwards;
+}
+
+/* Ensure Inter font is available if not globally configured in Tailwind */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+
+/* Apply Inter font if you haven't configured it in tailwind.config.js */
+.font-inter {
+  font-family: 'Inter', sans-serif;
+}
+
+/* src/index.css (o tu archivo CSS principal) */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Opcional: Importa la fuente Inter si no la has configurado ya globalmente en tu HTML o en tailwind.config.js */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+
+/* Si usaste `animation-delay` en tu JSX (como hice yo), necesitas definir estas clases aquí,
+   ya que Tailwind no tiene utilidades integradas para `animation-delay` directamente. */
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+/* src/index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Importa la fuente Inter */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+
+/* Estas clases son para los `animation-delay` que Tailwind no genera automáticamente */
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
