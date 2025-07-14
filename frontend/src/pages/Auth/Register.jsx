@@ -1,4 +1,5 @@
 // src/pages/Auth/Register.jsx
+import api from '../../api/axios';
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -49,7 +50,7 @@ const Register = () => {
         // --- Fin de validaciones en el frontend ---
 
         try {
-            const response = await axios.post('http://localhost:3006/api/v1/auth/registrar', {
+            const response = await api.post('/api/v1/auth/registrar', {
                 nombre,
                 email,
                 password,
