@@ -1,4 +1,5 @@
 // src/pages/Auth/Login.jsx
+import api from '../../api/axios';
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -16,7 +17,7 @@ const Login = () => {
         setIsLoading(true);
 
         try {
-            const response = await axios.post('http://localhost:3006/api/v1/auth/login', {
+            const response = await axios.post('/api/v1/auth/login', {
                 email,
                 password
             });
