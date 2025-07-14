@@ -1,80 +1,100 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, memo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Header.css';
 
-const Header = () => {
+const Header = ({ onToggleSidebar, isMobile }) => {
   const [nombreUsuario, setNombreUsuario] = useState('');
   const [mostrarMenu, setMostrarMenu] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const dropdownRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const usuarioGuardado = localStorage.getItem('usuario');
     const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/login');
+      return;
+    }
 
-    if (usuarioGuardado) {
+    const cargarUsuario = async () => {
       try {
-        const usuario = JSON.parse(usuarioGuardado);
-        if (usuario?.nombre) {
-          setNombreUsuario(usuario.nombre);
+        const usuarioGuardado = localStorage.getItem('usuario');
+        if (usuarioGuardado) {
+          setNombreUsuario(JSON.parse(usuarioGuardado)?.nombre || 'Usuario');
+        } else {
+          const { data } = await axios.get('http://localhost:3006/api/v1/auth/perfil', {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          setNombreUsuario(data.nombre);
+          localStorage.setItem('usuario', JSON.stringify(data));
         }
       } catch (error) {
-        console.error('❌ Error al parsear usuario:', error);
+        console.error('Error al cargar perfil:', error);
+        localStorage.clear();
+        navigate('/login');
+      } finally {
+        setLoading(false);
       }
-    } else if (token) {
-      axios
-        .get('http://localhost:3006/api/v1/auth/perfil', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        .then((res) => {
-          const usuario = res.data;
-          localStorage.setItem('usuario', JSON.stringify(usuario));
-          setNombreUsuario(usuario.nombre);
-        })
-        .catch((err) => {
-          console.error('❌ Error al obtener perfil:', err);
-        });
-    }
+    };
+    
+    cargarUsuario();
+  }, [navigate]);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setMostrarMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('usuario');
-    window.location.href = '/login';
+    localStorage.clear();
+    navigate('/login');
   };
 
-  const toggleMenu = () => {
-    setMostrarMenu(!mostrarMenu);
-  };
+  const iniciales = nombreUsuario
+    .split(' ')
+    .slice(0, 2)
+    .map((n) => n[0]?.toUpperCase() || '')
+    .join('');
+  
+  if (loading) return <div className="header-placeholder"></div>;
 
   return (
     <header className="header">
-      <div className="header__content">
+      <div className="header__left">
+        {isMobile && (
+          <button className="header__menu-button" onClick={onToggleSidebar} aria-label="Abrir menú">
+            ☰
+          </button>
+        )}
         <div className="header__logo">
-          <span role="img" aria-label="money">💰</span>
-          <span className="header__logo-text">Mi Control Financiero</span>
+          💰 <span className="header__logo-text">Mi Control Financiero</span>
         </div>
-        <div className="header__user">
-          <span className="header__greeting">Hola, {nombreUsuario || '...'} 👋</span>
-          <div className="header__avatar" onClick={toggleMenu}>
-            {nombreUsuario
-              ? nombreUsuario
-                  .split(' ')
-                  .map((n) => n[0])
-                  .join('')
-                  .toUpperCase()
-                  .slice(0, 2)
-              : 'US'}
-            {mostrarMenu && (
-              <div className="dropdown-menu">
-                <button onClick={handleLogout}>Salir</button>
-              </div>
-            )}
-          </div>
+      </div>
+      
+      <div className="header__right">
+        <span className="header__greeting">Hola, {nombreUsuario} 👋</span>
+        <div className="header__user-menu">
+          <button className="header__avatar" onClick={() => setMostrarMenu(prev => !prev)} aria-label="Menú de usuario">
+            {iniciales || 'US'}
+          </button>
+          {mostrarMenu && (
+            <div className="dropdown-menu" ref={dropdownRef}>
+              <button onClick={handleLogout} className="dropdown-item">
+                🚪 Salir
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </header>
   );
 };
 
-export default Header;
+export default memo(Header);

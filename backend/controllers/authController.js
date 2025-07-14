@@ -4,6 +4,7 @@ import { verificarPassword, generarSalt, hashearPassword } from '../utils/hashUt
 
 const { Usuario } = db;
 
+// LOGIN
 export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -17,7 +18,15 @@ export const login = async (req, res, next) => {
       return res.status(401).json({ error: 'Credenciales inválidas' });
     }
 
+    // LOGS PARA DEPURAR
+    console.log("🧪 Email recibido:", email);
+    console.log("🔑 Password ingresado:", password);
+    console.log("🔐 Password hash en BD:", usuario.password);
+    console.log("🧂 Salt en BD:", usuario.salt);
+
     const isValid = verificarPassword(password, usuario.password, usuario.salt);
+    console.log("✅ ¿Password válido?:", isValid);
+
     if (!isValid) {
       return res.status(401).json({ error: 'Credenciales inválidas' });
     }
@@ -42,6 +51,7 @@ export const login = async (req, res, next) => {
   }
 };
 
+// REGISTRO
 export const registrar = async (req, res, next) => {
   try {
     const { nombre, email, password, edad } = req.body;
@@ -57,6 +67,14 @@ export const registrar = async (req, res, next) => {
 
     const salt = generarSalt();
     const passwordHash = hashearPassword(password, salt);
+
+    // LOGS PARA DEPURAR
+    console.log("🧾 Registrando usuario:");
+    console.log("📛 Nombre:", nombre);
+    console.log("📧 Email:", email);
+    console.log("🔑 Password recibido:", password);
+    console.log("🧂 Salt generado:", salt);
+    console.log("🔐 Hash generado:", passwordHash);
 
     const nuevoUsuario = await Usuario.create({
       nombre,
@@ -77,6 +95,7 @@ export const registrar = async (req, res, next) => {
   }
 };
 
+// PERFIL
 export const obtenerPerfil = async (req, res, next) => {
   try {
     const usuario = await Usuario.findByPk(req.usuario.id, {

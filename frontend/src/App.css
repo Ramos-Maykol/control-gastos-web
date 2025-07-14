@@ -1,36 +1,72 @@
 /* App.css */
-
-html, body, #root {
-  height: 100%;
-  margin: 0;
-  padding: 0;
+:root {
+  --sidebar-width: 240px;
+  --sidebar-width-collapsed: 70px;
+  --header-height: 60px;
+  --transition-speed: 0.3s;
 }
 
 .app-container {
   display: flex;
-  flex-direction: column;
-  height: 100vh;
-  margin: auto;         /* ✅ Quita margen */
-  padding: 0;        /* ✅ Quita padding */
+  background-color: #f9fafb;
 }
 
 .body-container {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-}
-
-.sidebar {
-  width: 250px;
-  background-color: #ffffff;
-  padding: 1rem;
-  box-shadow: 2px 0 4px rgba(0,0,0,0.1);
+  /* El margen izquierdo se ajustará con transiciones */
+  margin-left: var(--sidebar-width);
+  padding-top: var(--header-height); /* Ensures content starts below the header */
+  width: 100%;
+  flex-grow: 1;
+  transition: margin-left var(--transition-speed) ease;
 }
 
 .page-content {
-  flex: 1;
-  padding: 0;        /* ✅ Quita el padding interno */
-  margin: 0;         /* ✅ Elimina cualquier margen por si acaso */
+  height: calc(100vh - var(--header-height));
   overflow-y: auto;
-  background-color: #f5f7fa;
+  padding: 0; /* Añadimos un padding por defecto */
+}
+
+/* --- ESTADOS DEL SIDEBAR EN ESCRITORIO --- */
+.sidebar-collapsed-desktop .body-container {
+  margin-left: var(--sidebar-width-collapsed);
+}
+
+/* --- ESTADOS DEL SIDEBAR EN MÓVIL --- */
+@media (max-width: 768px) {
+  .body-container {
+    margin-left: 0; /* En móvil el margen siempre es 0 */
+  }
+
+  .page-content {
+    padding: 0;
+  }
+
+  /* Bloquea el scroll del body cuando el menú está abierto */
+  .sidebar-open-mobile {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+/* --- OVERLAY --- */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999; /* Justo debajo del sidebar, pero encima del contenido principal */
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }

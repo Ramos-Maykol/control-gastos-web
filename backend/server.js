@@ -17,10 +17,13 @@ import healthRoutes from './routes/healthRoutes.js';
 import swaggerRoutes from './routes/swaggerRoutes.js';
 
 import db from './models/index.js';
-import { logger, registroAccesos } from './middleware/loggerMiddleware.js';
+import { logger } from './middleware/loggerMiddleware.js';
 import manejoErrores from './middleware/errorMiddleware.js';
 import { limiteGastosDiarios } from './middleware/limitesMiddleware.js';
 import { sanitizarInput } from './middleware/validacionMiddleware.js';
+import { autenticar } from './middleware/authMiddleware.js';
+
+import { generarSalt, hashearPassword } from './utils/hashUtils.js';
 
 dotenv.config();
 const app = express();
@@ -45,15 +48,13 @@ app.use(helmet({
 }));
 
 // CORS
-// CORS (Desarrollo - permite frontend local)
 app.use(cors({
-  origin: ['http://localhost:5173'], // 👈 Aquí el frontend Vite
+  origin: ['http://localhost:5173'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Correlation-ID'],
   exposedHeaders: ['X-RateLimit-Limit', 'X-RateLimit-Remaining'],
   credentials: true
 }));
-
 
 // Middleware de tracking
 app.use((req, res, next) => {
@@ -89,15 +90,14 @@ const authLimiter = rateLimit({
 });
 
 // Conexión a la base de datos
-const MAX_RETRIES = 3;
-const connectWithRetry = async (retries = MAX_RETRIES) => {
+const connectWithRetry = async (retries = 3) => {
   try {
-    await db.sequelize.authenticate(); // ← 👈 CAMBIO AQUÍ
-    await db.sequelize.sync({ alter: true }); // ← 👈 CAMBIO AQUÍ
+    await db.sequelize.authenticate();
+    await db.sequelize.sync({ alter: true });
     logger.info('✅ Base de datos sincronizada');
   } catch (err) {
     if (retries > 0) {
-      logger.warn(`Reintentando conexión a DB (${MAX_RETRIES - retries + 1}/${MAX_RETRIES})`);
+      logger.warn(`Reintentando conexión a DB (${3 - retries + 1}/3)`);
       setTimeout(() => connectWithRetry(retries - 1), 5000);
     } else {
       logger.error('❌ Error crítico de conexión a DB:', err);
@@ -106,12 +106,7 @@ const connectWithRetry = async (retries = MAX_RETRIES) => {
   }
 };
 
-
-
-import { generarSalt, hashearPassword } from './utils/hashUtils.js';
-
 const crearUsuarioPorDefecto = async () => {
-  console.log('🔍 Ejecutando creación de usuario por defecto...');
   const { Usuario } = db;
   const email = 'admin@demo.com';
 
@@ -132,39 +127,24 @@ const crearUsuarioPorDefecto = async () => {
   }
 };
 
-
 await connectWithRetry();
+await crearUsuarioPorDefecto();
 
-db.sequelize.sync({ alter: true }).then(async () => {
-  await crearUsuarioPorDefecto();
-});
+// Rutas públicas
+app.use(`${API_PREFIX}/auth`, authLimiter, authRoutes);
 
+// Rutas protegidas (orden importante)
+app.use(`${API_PREFIX}/movimientos`, apiLimiter, autenticar, limiteGastosDiarios, sanitizarInput, movimientoRoutes);
+app.use(`${API_PREFIX}/categorias`, apiLimiter, autenticar, limiteGastosDiarios, sanitizarInput, categoriaRoutes);
+app.use(`${API_PREFIX}/metas`, apiLimiter, autenticar, limiteGastosDiarios, sanitizarInput, metaRoutes);
+app.use(`${API_PREFIX}/consejos`, apiLimiter, autenticar, limiteGastosDiarios, sanitizarInput, consejoRoutes);
+app.use(`${API_PREFIX}/alertas`, apiLimiter, autenticar, limiteGastosDiarios, sanitizarInput, alertaRoutes);
 
+// Rutas abiertas (sin token)
+app.use(`${API_PREFIX}/health`, healthRoutes);
+app.use(`${API_PREFIX}/docs`, swaggerRoutes);
 
-
-// Rutas
-const routes = [
-  { path: '/auth', router: authRoutes, limiter: authLimiter },
-  { path: '/movimientos', router: movimientoRoutes },
-  { path: '/categorias', router: categoriaRoutes },
-  { path: '/metas', router: metaRoutes },
-  { path: '/consejos', router: consejoRoutes },
-  { path: '/alertas', router: alertaRoutes },
-  { path: '/health', router: healthRoutes },
-  { path: '/docs', router: swaggerRoutes }
-];
-
-routes.forEach(({ path, router, limiter }) => {
-  app.use(`${API_PREFIX}${path}`,
-    limiter || apiLimiter,
-    limiteGastosDiarios,
-    sanitizarInput,
-    router
-  );
-  logger.info(`Ruta registrada: ${API_PREFIX}${path}`);
-});
-
-// Manejo de errores centralizado
+// Manejo de errores
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
   const errorDetails = {
@@ -227,6 +207,3 @@ if (cluster.isPrimary && CPU_CORES > 1) {
     shutdown('uncaughtException');
   });
 }
-
-// Middleware de errores al final
-app.use(manejoErrores);

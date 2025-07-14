@@ -1,83 +1,129 @@
 .header {
-  background: linear-gradient(90deg, #6a11cb 0%, #2575fc 100%);
-  padding: 1rem 2rem;
-  color: white;
-  border-bottom-left-radius: 1rem;
+  height: var(--header-height);
+  background: #1a73e8; /* A vibrant blue color for the header */
+  color: #ffffff; /* Changed text color to white for contrast */
+  padding: 0; /* Maintain existing left/right padding */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 500; /* Ensure the header is above other elements like the sidebar */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-bottom: none;
 }
 
-.header__content {
+.header__left,
+.header__right {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 1.5rem; /* Increased gap for better spacing between elements within left/right sections */
 }
 
 .header__logo {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 1.3rem;
-  font-weight: bold;
-}
-
-.header__user {
-  display: flex;
-  align-items: center;
-  position: relative;
+  font-size: 1.2rem;
+  font-weight: 700;
   gap: 0.75rem;
 }
 
-.header__greeting {
-  margin: 0;
-  font-size: 1rem;
+.header__logo-text {
+  font-family: 'Inter', sans-serif;
+  color: #ffffff; /* Ensure logo text is white */
+}
+
+.header__menu-button {
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  color: #ffffff;
+  cursor: pointer;
+  padding: 0.25rem;
+}
+
+.header__user-menu {
+  position: relative;
+  /* REMOVE margin-left: auto; here. We will manage spacing with gap on header__right */
 }
 
 .header__avatar {
-  background-color: #ffffff;
-  color: #6a11cb;
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  font-weight: bold;
-  font-size: 14px;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-weight: bold;
+  font-size: 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.4);
   cursor: pointer;
-  position: relative;
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
-  user-select: none;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  flex-shrink: 0; /* Ensure the avatar doesn't shrink */
 }
 
 .header__avatar:hover {
-  transform: scale(1.05);
+  transform: scale(1.08);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.3);
 }
 
 .dropdown-menu {
   position: absolute;
-  top: 48px;
-  right: 0;
-  background-color: white;
-  border: 1px solid #ddd;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border-radius: 6px;
-  padding: 8px;
+  top: calc(100% + 10px);
+  right: 0; /* Align to the right edge of its parent */
+  min-width: 180px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
   z-index: 100;
-  min-width: 100px;
+  animation: slideDown 0.2s ease-out;
 }
 
-.dropdown-menu button {
-  background: none;
-  border: none;
-  padding: 6px 12px;
-  cursor: pointer;
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-item {
   width: 100%;
+  padding: 0.85rem 1.25rem;
+  border: none;
+  background: none;
   text-align: left;
-  font-size: 14px;
-  color: #333;
-  border-radius: 4px;
+  font-size: 1rem;
+  color: #334155;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-.dropdown-menu button:hover {
-  background-color: #f5f5f5;
+.dropdown-item:hover {
+  background-color: #eef2ff;
+  color: #4f46e5;
+}
+
+.header-placeholder {
+  height: var(--header-height);
+  background-color: #f8fafc;
+}
+
+@media (max-width: 768px) {
+  .header__greeting {
+    display: none;
+  }
+  .header {
+    padding: 0 1rem;
+  }
 }
