@@ -49,7 +49,10 @@ app.use(helmet({
 
 // CORS
 app.use(cors({
-  origin: ['http://localhost:5173'],
+  origin: [
+    'http://localhost:5173',
+    'http://35.226.133.230' 
+  ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Correlation-ID'],
   exposedHeaders: ['X-RateLimit-Limit', 'X-RateLimit-Remaining'],
